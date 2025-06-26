@@ -765,6 +765,17 @@ fn wasix_exports_64(mut store: &mut impl AsStoreMut, env: &FunctionEnv<WasiEnv>)
     namespace
 }
 
+fn env_exports(mut store: &mut impl AsStoreMut, env: &FunctionEnv<WasiEnv>) -> Exports {
+    use syscalls::*;
+    let namespace = namespace! {
+        "mmap" => Function::new_typed_with_env(&mut store, env, env_mmap),
+        "munmap" => Function::new_typed_with_env(&mut store, env, env_munmap),
+        "malloc" => Function::new_typed_with_env(&mut store, env, env_malloc),
+        "free" => Function::new_typed_with_env(&mut store, env, env_free),
+    };
+    namespace
+}
+
 // TODO: split function into two variants, one for JS and one for sys.
 // (this will make code less messy)
 fn import_object_for_all_wasi_versions(
@@ -777,6 +788,7 @@ fn import_object_for_all_wasi_versions(
     let exports_wasi_snapshot_preview1 = wasi_snapshot_preview1_exports(store, env);
     let exports_wasix_32v1 = wasix_exports_32(store, env);
     let exports_wasix_64v1 = wasix_exports_64(store, env);
+    let exports_env = env_exports(store, env);
 
     // Allowed due to JS feature flag complications.
     #[allow(unused_mut)]
@@ -786,6 +798,7 @@ fn import_object_for_all_wasi_versions(
         "wasi_snapshot_preview1" => exports_wasi_snapshot_preview1,
         "wasix_32v1" => exports_wasix_32v1,
         "wasix_64v1" => exports_wasix_64v1,
+        "env" => exports_env,
     };
 
     imports

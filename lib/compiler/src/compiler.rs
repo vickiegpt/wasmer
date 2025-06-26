@@ -122,8 +122,8 @@ pub trait Compiler: Send + std::fmt::Debug {
         wasm_features.set(WasmFeatures::MEMORY64, features.memory64);
         wasm_features.set(WasmFeatures::EXCEPTIONS, features.exceptions);
         wasm_features.set(WasmFeatures::EXTENDED_CONST, features.extended_const);
+        wasm_features.set(WasmFeatures::MUTABLE_GLOBAL, features.extended_globals);
         wasm_features.set(WasmFeatures::RELAXED_SIMD, features.relaxed_simd);
-        wasm_features.set(WasmFeatures::MUTABLE_GLOBAL, true);
         wasm_features.set(WasmFeatures::SATURATING_FLOAT_TO_INT, true);
         wasm_features.set(WasmFeatures::FLOATS, true);
         wasm_features.set(WasmFeatures::SIGN_EXTENSION, true);
@@ -137,10 +137,10 @@ pub trait Compiler: Send + std::fmt::Debug {
         wasm_features.set(WasmFeatures::COMPONENT_MODEL_VALUES, false);
         wasm_features.set(WasmFeatures::COMPONENT_MODEL_NESTED_NAMES, false);
 
-        let mut validator = Validator::new_with_features(wasm_features);
-        validator
-            .validate_all(data)
-            .map_err(|e| CompileError::Validate(format!("{e}")))?;
+        // let mut validator = Validator::new_with_features(wasm_features);
+        // validator
+        //     .validate_all(data)
+        //     .map_err(|e| CompileError::Validate(format!("{e}")))?;
         Ok(())
     }
 

@@ -16,6 +16,7 @@ pub mod wasm;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
+pub mod env;
 pub mod journal;
 pub mod wasi;
 pub mod wasix;
@@ -26,6 +27,7 @@ use futures::{
     Future,
 };
 use tracing::instrument;
+pub use env::*;
 pub use wasi::*;
 pub use wasix::*;
 use wasmer_journal::SnapshotTrigger;

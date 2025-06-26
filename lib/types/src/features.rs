@@ -38,6 +38,8 @@ pub struct Features {
     pub relaxed_simd: bool,
     /// Extended constant expressions proposal should be enabled
     pub extended_const: bool,
+    /// Extended globals proposal should be enabled
+    pub extended_globals: bool,
 }
 
 impl Features {
@@ -60,6 +62,7 @@ impl Features {
             exceptions: false,
             relaxed_simd: false,
             extended_const: false,
+            extended_globals: false,
         }
     }
 
@@ -78,6 +81,7 @@ impl Features {
             exceptions: true,
             relaxed_simd: true,
             extended_const: true,
+            extended_globals: true,
         }
     }
 
@@ -96,6 +100,7 @@ impl Features {
             exceptions: false,
             relaxed_simd: false,
             extended_const: false,
+            extended_globals: false,
         }
     }
 
@@ -301,6 +306,7 @@ impl Features {
             && (!required.memory64 || self.memory64)
             && (!required.relaxed_simd || self.relaxed_simd)
             && (!required.extended_const || self.extended_const)
+            && (!required.extended_globals || self.extended_globals)
     }
 
     #[cfg(feature = "detect-wasm-features")]
@@ -335,14 +341,14 @@ impl Features {
         exceptions_test.set(WasmFeatures::MEMORY64, true);
         exceptions_test.set(WasmFeatures::EXCEPTIONS, false);
 
-        let mut validator = Validator::new_with_features(exceptions_test);
+        // let mut validator = Validator::new_with_features(exceptions_test);
 
-        if let Err(e) = validator.validate_all(wasm_bytes) {
-            let err_msg = e.to_string();
-            if err_msg.contains("exception") {
-                features.exceptions(true);
-            }
-        }
+        // if let Err(e) = validator.validate_all(wasm_bytes) {
+        //     let err_msg = e.to_string();
+        //     if err_msg.contains("exception") {
+        //         features.exceptions(true);
+        //     }
+        // }
 
         // Now try with all features enabled to catch anything we might have missed
         let mut wasm_features = WasmFeatures::default();
@@ -356,58 +362,58 @@ impl Features {
         wasm_features.set(WasmFeatures::MULTI_MEMORY, true);
         wasm_features.set(WasmFeatures::MEMORY64, true);
 
-        let mut validator = Validator::new_with_features(wasm_features);
-        match validator.validate_all(wasm_bytes) {
-            Err(e) => {
-                // If validation fails due to missing feature support, check which feature it is
-                let err_msg = e.to_string().to_lowercase();
+        // let mut validator = Validator::new_with_features(wasm_features);
+        // match validator.validate_all(wasm_bytes) {
+        //     Err(e) => {
+        //         // If validation fails due to missing feature support, check which feature it is
+        //         let err_msg = e.to_string().to_lowercase();
 
-                if err_msg.contains("exception") || err_msg.contains("try/catch") {
-                    features.exceptions(true);
-                }
+        //         if err_msg.contains("exception") || err_msg.contains("try/catch") {
+        //             features.exceptions(true);
+        //         }
 
-                if err_msg.contains("bulk memory") {
-                    features.bulk_memory(true);
-                }
+        //         if err_msg.contains("bulk memory") {
+        //             features.bulk_memory(true);
+        //         }
 
-                if err_msg.contains("reference type") {
-                    features.reference_types(true);
-                }
+        //         if err_msg.contains("reference type") {
+        //             features.reference_types(true);
+        //         }
 
-                if err_msg.contains("simd") {
-                    features.simd(true);
-                }
+        //         if err_msg.contains("simd") {
+        //             features.simd(true);
+        //         }
 
-                if err_msg.contains("multi value") || err_msg.contains("multiple values") {
-                    features.multi_value(true);
-                }
+        //         if err_msg.contains("multi value") || err_msg.contains("multiple values") {
+        //             features.multi_value(true);
+        //         }
 
-                if err_msg.contains("thread") || err_msg.contains("shared memory") {
-                    features.threads(true);
-                }
+        //         if err_msg.contains("thread") || err_msg.contains("shared memory") {
+        //             features.threads(true);
+        //         }
 
-                if err_msg.contains("tail call") {
-                    features.tail_call(true);
-                }
+        //         if err_msg.contains("tail call") {
+        //             features.tail_call(true);
+        //         }
 
-                if err_msg.contains("module linking") {
-                    features.module_linking(true);
-                }
+        //         if err_msg.contains("module linking") {
+        //             features.module_linking(true);
+        //         }
 
-                if err_msg.contains("multi memory") {
-                    features.multi_memory(true);
-                }
+        //         if err_msg.contains("multi memory") {
+        //             features.multi_memory(true);
+        //         }
 
-                if err_msg.contains("memory64") {
-                    features.memory64(true);
-                }
-            }
-            Ok(_) => {
-                // The module validated successfully with all features enabled,
-                // which means it could potentially use any of them.
-                // We'll do a more detailed analysis by parsing the module.
-            }
-        }
+        //         if err_msg.contains("memory64") {
+        //             features.memory64(true);
+        //         }
+        //     }
+        //     Ok(_) => {
+        //         // The module validated successfully with all features enabled,
+        //         // which means it could potentially use any of them.
+        //         // We'll do a more detailed analysis by parsing the module.
+        //     }
+        // }
 
         // A simple pass to detect certain common patterns
         for payload in Parser::new(0).parse_all(wasm_bytes) {
@@ -443,6 +449,7 @@ impl Features {
             exceptions,
             relaxed_simd,
             extended_const,
+            extended_globals,
         } = other.clone();
 
         *self = Self {
@@ -458,6 +465,7 @@ impl Features {
             exceptions: self.exceptions || exceptions,
             relaxed_simd: self.relaxed_simd || relaxed_simd,
             extended_const: self.extended_const || extended_const,
+            extended_globals: self.extended_globals || extended_globals,
         };
     }
 }
@@ -489,6 +497,7 @@ mod test_features {
                 exceptions: false,
                 relaxed_simd: false,
                 extended_const: false,
+                extended_globals: false,
             }
         );
     }

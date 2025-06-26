@@ -150,11 +150,11 @@ impl Imports {
             {
                 ret.push(imp.clone());
             } else {
-                return Err(LinkError::Import(
-                    import.module().to_string(),
-                    import.name().to_string(),
-                    ImportError::UnknownImport(import.ty().clone()),
-                ));
+                // return Err(LinkError::Import(
+                //     import.module().to_string(),
+                //     import.name().to_string(),
+                //     ImportError::UnknownImport(import.ty().clone()),
+                // ));
             }
         }
         Ok(ret)

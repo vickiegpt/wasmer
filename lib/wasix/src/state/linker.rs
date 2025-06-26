@@ -1026,6 +1026,7 @@ impl Linker {
         let well_known_imports = [
             ("env", "__memory_base", MAIN_MODULE_MEMORY_BASE),
             ("env", "__table_base", MAIN_MODULE_TABLE_BASE),
+            ("env", "__tls_align", 16),
             ("GOT.mem", "__stack_high", stack_high),
             ("GOT.mem", "__stack_low", stack_low),
             ("GOT.mem", "__heap_base", stack_high),
@@ -1253,6 +1254,7 @@ impl Linker {
         let well_known_imports = [
             ("env", "__memory_base", MAIN_MODULE_MEMORY_BASE),
             ("env", "__table_base", MAIN_MODULE_TABLE_BASE),
+            ("env", "__tls_align", 16),
             ("GOT.mem", "__stack_high", stack_high),
             ("GOT.mem", "__stack_low", stack_low),
             ("GOT.mem", "__heap_base", linker_state.heap_base),
@@ -1867,7 +1869,7 @@ impl LinkerState {
 
             // Skip over the memory, function table and stack pointer imports as well
             match import.name() {
-                "memory" | "__indirect_function_table" | "__stack_pointer" | "__c_longjmp" => {
+                "memory" | "__indirect_function_table" | "__stack_pointer" | "__c_longjmp" | "__tls_align" | "__tls_size" => {
                     trace!(?import, "Skipping resolution of special symbol");
                     continue;
                 }
@@ -2288,6 +2290,7 @@ impl InstanceGroupState {
         let well_known_imports = [
             ("env", "__memory_base", memory_base),
             ("env", "__table_base", table_base),
+            ("env", "__tls_align", 16),
         ];
 
         let module = pending_module.module.clone();
@@ -2407,6 +2410,7 @@ impl InstanceGroupState {
         let well_known_imports = [
             ("env", "__memory_base", dl_module.memory_base),
             ("env", "__table_base", dl_module.table_base),
+            ("env", "__tls_align", 16),
         ];
 
         trace!(?module_handle, "Populating imports object");
